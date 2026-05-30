@@ -10,8 +10,7 @@ sqlalchemy>=2.0.29
 # Video & CV
 opencv-python-headless>=4.9.0
 
-# Detection (optional — falls back to HOG if unavailable)
-ultralytics>=8.2.0
+# Detection uses OpenCV HOG by default. Install ultralytics separately for YOLOv8.
 
 # Analytics
 numpy>=1.26.0

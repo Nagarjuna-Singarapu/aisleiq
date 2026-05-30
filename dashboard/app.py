@@ -4,7 +4,9 @@ Run with: streamlit run dashboard/app.py
 """
 from __future__ import annotations
 
+import atexit
 import os
+import subprocess
 import sys
 import time
 from typing import Optional
@@ -27,6 +29,7 @@ from dashboard.components.charts import (
 # ── Config ────────────────────────────────────────────────────────────── #
 API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000")
 REFRESH_INTERVAL = 10  # seconds
+LOCAL_API_PORT = int(os.getenv("AISLEIQ_LOCAL_API_PORT", "8000"))
 
 st.set_page_config(
     page_title="AisleIQ",
@@ -38,6 +41,55 @@ st.set_page_config(
 
 # ── Helpers ───────────────────────────────────────────────────────────── #
 _api_errors: list[str] = []
+
+
+def _api_is_local() -> bool:
+    return API_BASE.startswith(("http://localhost", "http://127.0.0.1"))
+
+
+@st.cache_resource(show_spinner=False)
+def _start_local_api() -> Optional[subprocess.Popen]:
+    if not _api_is_local():
+        return None
+    if _get("/health"):
+        return None
+
+    env = os.environ.copy()
+    env.setdefault("APP_ENV", "demo")
+    env.setdefault("ENABLE_DEMO_SEED", "true")
+    env.setdefault("USE_GPU", "false")
+    env.setdefault("DATABASE_URL", "sqlite:///./data/db/store_intelligence.db")
+
+    for folder in ("data/videos", "data/frames", "data/exports", "data/db", "logs"):
+        os.makedirs(os.path.join(_PROJECT_ROOT, folder), exist_ok=True)
+
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "app.main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(LOCAL_API_PORT),
+        ],
+        cwd=_PROJECT_ROOT,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+    )
+    atexit.register(process.terminate)
+    return process
+
+
+def _wait_for_api(timeout_seconds: int = 15) -> bool:
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        if _get("/health"):
+            return True
+        time.sleep(0.5)
+    return False
 
 
 def _get(path: str, params: dict | None = None) -> dict | list | None:
@@ -66,6 +118,8 @@ def _post(path: str, body: dict) -> dict | None:
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────── #
+_start_local_api()
+
 st.sidebar.title("🛒 AisleIQ")
 st.sidebar.markdown("**AI-Powered Retail Video Intelligence**")
 
@@ -81,6 +135,7 @@ uploaded_file = st.sidebar.file_uploader(
 )
 if uploaded_file is not None:
     save_path = os.path.join(_PROJECT_ROOT, "data", "videos", uploaded_file.name)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     if os.path.exists(save_path):
         st.sidebar.warning(f"`{uploaded_file.name}` already exists — will reuse it.")
     else:
@@ -120,6 +175,8 @@ cam_param = camera_filter or None
 
 # Health check banner
 health = _get("/health")
+if not health and _api_is_local() and _wait_for_api():
+    health = _get("/health")
 _api_online = health and health.get("status") == "ok"
 if _api_online:
     st.success(f"✅ API online | DB: {health.get('database')} | v{health.get('version')}")
