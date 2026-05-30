@@ -1,0 +1,22 @@
+services:
+  - type: web
+    runtime: python
+    name: aisleiq-demo
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: bash scripts/render_start.sh
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: APP_ENV
+        value: production
+      - key: API_BASE_URL
+        value: http://127.0.0.1:8000
+      - key: ENABLE_DEMO_SEED
+        value: "true"
+      - key: DATABASE_URL
+        value: sqlite:///./data/db/store_intelligence.db
+      - key: USE_GPU
+        value: "false"

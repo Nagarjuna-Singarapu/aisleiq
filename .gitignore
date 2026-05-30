@@ -65,6 +65,7 @@ logs/
 .coverage
 htmlcov/
 .tox/
+docs/demo/
 
 # Docker
 .docker/

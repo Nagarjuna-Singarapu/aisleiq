@@ -12,7 +12,8 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.config import settings
-from app.database import init_db
+from app.database import SessionLocal, init_db
+from app.demo_seed import seed_demo_data, should_seed_demo_data
 from app.api.routes import health, video, events, analytics, alerts
 from app.utils.helpers import ensure_dirs
 from app.utils.logger import get_logger
@@ -26,6 +27,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     log.info("Starting %s (%s)", settings.app_name, settings.app_env)
     ensure_dirs(settings.video_dir, settings.frames_dir, settings.export_dir, "data/db")
     init_db()
+    if should_seed_demo_data():
+        with SessionLocal() as db:
+            seed_demo_data(db)
     yield
     log.info("Shutting down %s", settings.app_name)
 
