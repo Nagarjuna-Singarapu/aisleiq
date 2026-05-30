@@ -145,7 +145,8 @@ if uploaded_file is not None:
 
 st.sidebar.divider()
 st.sidebar.subheader("▶ Process Video")
-available: list = _get("/process-video/available-videos") or []
+available_response = _get("/process-video/available-videos")
+available: list = available_response if isinstance(available_response, list) else []
 if available:
     selected_video = st.sidebar.selectbox("Select video file", available)
     default_cam = os.path.splitext(selected_video)[0].replace(" ", "")
@@ -161,8 +162,13 @@ if available:
             st.rerun()
         else:
             st.sidebar.error("Job submission failed — check API logs.")
+elif available_response is None:
+    st.sidebar.info("Video list is loading. Refresh in a moment if this does not update.")
 else:
-    st.sidebar.warning("No videos found. Upload one above or start the API first:\n`make run-api`")
+    st.sidebar.info(
+        "No uploaded videos yet. Upload a video above to process your own footage. "
+        "The hosted demo analytics are already loaded."
+    )
 
 st.sidebar.divider()
 if st.sidebar.button("🔄 Refresh Now"):
