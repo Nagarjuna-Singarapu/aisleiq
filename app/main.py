@@ -8,7 +8,8 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.config import settings
 from app.database import init_db
@@ -34,10 +35,45 @@ def create_app() -> FastAPI:
         title="AisleIQ API",
         description="AI-powered CCTV analytics: person tracking, event streaming, anomaly detection",
         version="1.0.0",
-        docs_url="/docs",
+        docs_url=None,
         redoc_url="/redoc",
         lifespan=lifespan,
     )
+
+    @app.get("/docs", include_in_schema=False)
+    async def swagger_ui_html():
+        response = get_swagger_ui_html(
+            openapi_url=app.openapi_url,
+            title=f"{app.title} - Swagger UI",
+            swagger_ui_parameters={
+                "deepLinking": True,
+                "showExtensions": True,
+                "showCommonExtensions": True,
+            },
+        )
+        html = response.body.decode("utf-8")
+        force_light = """
+        <style>
+            html, body, .swagger-ui {
+                background: #ffffff !important;
+                color-scheme: light !important;
+            }
+        </style>
+        <script>
+            const forceSwaggerLightMode = () => {
+                document.documentElement.classList.remove("dark-mode");
+                document.documentElement.style.colorScheme = "light";
+                document.body.style.background = "#ffffff";
+            };
+            forceSwaggerLightMode();
+            new MutationObserver(forceSwaggerLightMode).observe(
+                document.documentElement,
+                { attributes: true, attributeFilter: ["class"] }
+            );
+            setInterval(forceSwaggerLightMode, 100);
+        </script>
+        """
+        return HTMLResponse(html.replace("</head>", f"{force_light}</head>"))
 
     # CORS
     app.add_middleware(
