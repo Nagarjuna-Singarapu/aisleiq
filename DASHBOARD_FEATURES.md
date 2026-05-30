@@ -1,4 +1,4 @@
-# Dashboard Feature Guide
+# AisleIQ — Dashboard Feature Guide
 
 > All features available at **http://localhost:8501**
 

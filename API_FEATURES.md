@@ -1,4 +1,4 @@
-# API Feature Guide
+# AisleIQ — API Feature Guide
 
 > All endpoints available at **http://localhost:8000/docs** (Swagger UI)  
 > Base URL: `http://localhost:8000`

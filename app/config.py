@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = "purplle-store-intelligence"
+    app_name: str = "aisleiq"
     app_env: str = "development"
     app_host: str = "0.0.0.0"
     app_port: int = 8000

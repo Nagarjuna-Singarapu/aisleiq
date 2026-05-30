@@ -1,7 +1,6 @@
-# Purplle Store Intelligence System
+# AisleIQ — AI-Powered Retail Video Intelligence
 
-> **Purplle Tech Challenge 2026 — Round 2**
-> AI-powered Store Intelligence from CCTV footage
+> Real-time retail analytics from CCTV footage
 
 A production-grade system for real-time retail analytics using computer vision.
 Processes CCTV video to detect customers, track their movement, generate structured events,
@@ -40,7 +39,7 @@ make run-dashboard     # terminal 2 — http://localhost:8501
 
 ```bash
 git clone <repo>
-cd purplle-store-intelligence
+cd aisleiq
 
 # Create virtual environment & install deps
 make setup
@@ -165,7 +164,7 @@ Services:
 ## Project Structure
 
 ```
-purplle-store-intelligence/
+aisleiq/
 ├── app/
 │   ├── main.py              ← FastAPI app factory
 │   ├── config.py            ← All configuration (pydantic-settings)

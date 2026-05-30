@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM python:3.11-slim
 
-LABEL maintainer="purplle-store-intelligence"
+LABEL maintainer="aisleiq"
 
 # System deps for OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \

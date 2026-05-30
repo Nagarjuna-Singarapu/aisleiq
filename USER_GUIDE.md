@@ -1,4 +1,4 @@
-# Purplle Store Intelligence — Feature Guides
+# AisleIQ — Feature Guides
 
 Feature documentation is split into two focused files:
 

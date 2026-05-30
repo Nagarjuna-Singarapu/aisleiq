@@ -1,5 +1,5 @@
 """
-Purplle Store Intelligence — Live Dashboard
+AisleIQ — AI-Powered Retail Video Intelligence Dashboard
 Run with: streamlit run dashboard/app.py
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000")
 REFRESH_INTERVAL = 10  # seconds
 
 st.set_page_config(
-    page_title="Purplle Store Intelligence",
+    page_title="AisleIQ",
     page_icon="🛒",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -66,8 +66,8 @@ def _post(path: str, body: dict) -> dict | None:
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────── #
-st.sidebar.title("🛒 Store Intelligence")
-st.sidebar.markdown("**Purplle Tech Challenge 2026**")
+st.sidebar.title("🛒 AisleIQ")
+st.sidebar.markdown("**AI-Powered Retail Video Intelligence**")
 
 camera_filter = st.sidebar.text_input("Filter by Camera ID", value="")
 auto_refresh = st.sidebar.checkbox("Auto-refresh (10s)", value=True)
@@ -114,7 +114,7 @@ if st.sidebar.button("🔄 Refresh Now"):
     st.rerun()
 
 # ── Main ─────────────────────────────────────────────────────────────── #
-st.title("📹 Purplle Store Intelligence Dashboard")
+st.title("📹 AisleIQ — Retail Video Intelligence")
 
 cam_param = camera_filter or None
 

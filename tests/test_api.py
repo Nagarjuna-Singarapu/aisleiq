@@ -1,7 +1,8 @@
 """Tests for API endpoints."""
 from __future__ import annotations
 
-import pytest
+from app.database import get_db
+from app.models.db_models import ProcessingJob
 
 
 def test_health_check(client):
@@ -80,6 +81,35 @@ def test_list_available_videos(client):
     r = client.get("/process-video/available-videos")
     assert r.status_code == 200
     assert isinstance(r.json(), list)
+
+
+def test_list_jobs_serializes_existing_jobs(client):
+    override_get_db = client.app.dependency_overrides[get_db]
+    session_gen = override_get_db()
+    db = next(session_gen)
+    try:
+        job = ProcessingJob(
+            camera_id="CAM_TEST",
+            video_path="data/videos/test.mp4",
+            status="completed",
+            total_frames=30,
+            processed_frames=30,
+            fps=10.0,
+            duration_seconds=3.0,
+        )
+        db.add(job)
+        db.commit()
+    finally:
+        try:
+            next(session_gen)
+        except StopIteration:
+            pass
+
+    r = client.get("/process-video/jobs")
+    assert r.status_code == 200
+    data = r.json()
+    assert data[0]["job_id"] == 1
+    assert data[0]["camera_id"] == "CAM_TEST"
 
 
 def test_job_not_found(client):

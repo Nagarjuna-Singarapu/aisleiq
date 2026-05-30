@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="Purplle Store Intelligence API",
+        title="AisleIQ API",
         description="AI-powered CCTV analytics: person tracking, event streaming, anomaly detection",
         version="1.0.0",
         docs_url="/docs",

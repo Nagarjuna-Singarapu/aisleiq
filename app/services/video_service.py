@@ -13,13 +13,28 @@ from app.config import settings
 from app.core.video_processor import VideoProcessor
 from app.database import db_session
 from app.models.db_models import ProcessingJob
-from app.models.schemas import JobStatus, ProcessVideoRequest, ProcessVideoResponse
+from app.models.schemas import JobStatus, JobStatusResponse, ProcessVideoRequest, ProcessVideoResponse
 from app.utils.logger import get_logger
 
 log = get_logger(__name__)
 
 
 class VideoService:
+    @staticmethod
+    def _to_job_status_response(job: ProcessingJob) -> JobStatusResponse:
+        return JobStatusResponse(
+            job_id=job.id,
+            camera_id=job.camera_id,
+            status=job.status,
+            total_frames=job.total_frames,
+            processed_frames=job.processed_frames,
+            fps=job.fps,
+            duration_seconds=job.duration_seconds,
+            error_message=job.error_message,
+            created_at=job.created_at,
+            updated_at=job.updated_at,
+        )
+
     def create_job(
         self,
         db: Session,
@@ -68,8 +83,12 @@ class VideoService:
         except Exception:
             log.exception("Background processing failed: job_id=%d", job_id)
 
-    def get_job(self, db: Session, job_id: int) -> Optional[ProcessingJob]:
-        return db.get(ProcessingJob, job_id)
+    def get_job(self, db: Session, job_id: int) -> Optional[JobStatusResponse]:
+        job = db.get(ProcessingJob, job_id)
+        if not job:
+            return None
+        return self._to_job_status_response(job)
 
-    def list_jobs(self, db: Session) -> list[ProcessingJob]:
-        return db.query(ProcessingJob).order_by(ProcessingJob.created_at.desc()).all()
+    def list_jobs(self, db: Session) -> list[JobStatusResponse]:
+        jobs = db.query(ProcessingJob).order_by(ProcessingJob.created_at.desc()).all()
+        return [self._to_job_status_response(job) for job in jobs]

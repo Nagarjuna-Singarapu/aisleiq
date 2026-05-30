@@ -41,7 +41,7 @@ def process_video(
     summary="List all processing jobs",
 )
 def list_jobs(db: Session = Depends(get_db)) -> List[JobStatusResponse]:
-    return _svc.list_jobs(db)  # type: ignore[return-value]
+    return _svc.list_jobs(db)
 
 
 @router.get(
@@ -53,7 +53,7 @@ def get_job(job_id: int, db: Session = Depends(get_db)) -> JobStatusResponse:
     job = _svc.get_job(db, job_id)
     if not job:
         raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
-    return job  # type: ignore[return-value]
+    return job
 
 
 @router.get(
